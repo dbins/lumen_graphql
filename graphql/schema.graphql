@@ -1,0 +1,51 @@
+"A datetime string with format `Y-m-d H:i:s`, e.g. `2018-05-23 13:43:32`."
+scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+
+type User {
+  id: ID!
+  nome: String!
+  email: String!
+  created_at: DateTime!
+  updated_at: DateTime!
+  posts: [Post!]! @hasMany
+}
+
+type Post {
+  id: ID!
+  titulo: String!
+  conteudo: String!
+  user_id: Int!
+  autor: User! @belongsTo
+  comentarios: [Comentario!]! @hasMany
+}
+
+type Comentario {
+  id: ID!
+  resposta: String!
+  post: Post! @belongsTo
+}
+
+type Query {
+  posts: [Post!]! @all
+  post(id: Int! @eq): Post @find
+  user(id: Int! @eq): User @find
+  comentarios: [Comentario!]! @all
+  usuarios: [User!]! @all
+  comentario(id: Int! @eq): Comentario @find
+  posts_pg: [Post!]! @paginate
+  usuarioPesquisa(nome: String @eq, email: String @eq): [User] @paginate
+  usuariosnome(q: String @scope(name:"NomeSemelhante")): [User] @all
+  usuariosfiltros(q: UserFilter! @scope(name:"FiltroObjeto")): [User] @all
+}
+
+
+type Mutation {
+  criarPost(titulo: String!, conteudo: String!, user_id: Int!): Post! @create
+  atualizarPost(id: Int!, titulo: String, conteudo: String, user_id: Int): Post! @update
+  excluirPost(id: Int!): Post! @delete
+}
+
+input UserFilter {
+  nome: String
+  email: String
+}
